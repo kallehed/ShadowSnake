@@ -1,4 +1,4 @@
-
+import asyncio
 import pygame, random
 pygame.init()
 
@@ -322,66 +322,70 @@ reset_everything = False
 shadow_spawn_time = START_SHADOW_SPAWN_TIME
 
 running = True
-while running:
+async def main():
+    global heatmap, explosions, player, pickup_bomb, placed_bomb, shadows, big_shadows, dead_shadows, points, high_score, reset_everything, shadow_spawn_time, ticks, running
+    while running:
 
-    # EVENTS
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                player.change_dir((-1,0))
-            if event.key == pygame.K_RIGHT:
-                player.change_dir((1,0))
-            if event.key == pygame.K_UP:
-                player.change_dir((0,-1))
-            if event.key == pygame.K_DOWN:
-                player.change_dir((0,1))
-            if event.key == pygame.K_SPACE:
-                placed_bomb.trigger()
-    # LOGIC
-    if player.alive:
-        shadow_logic()
-    
-        for shadow in shadows: shadow.logic()
-        for big_shadow in big_shadows: big_shadow.logic()
-        pickup_bomb.logic()
-        player.logic()
-        for i in range(len(explosions)-1,-1,-1): explosions[i].logic()
-    for i in range(len(dead_shadows)-1,-1,-1): dead_shadows[i].logic()
-
-    # DRAW THINGS
-    screen.fill(BACKGROUND_COLOR)
-    draw_heatmap()
-    
-    for explosion in explosions: explosion.draw()
-    for shadow in shadows: shadow.draw()
-    for big_shadow in big_shadows: big_shadow.draw()
-    placed_bomb.draw()
-    pickup_bomb.draw()
-    player.draw()
-    draw_hud()
-    for dead_shadow in dead_shadows: dead_shadow.draw()
-
-    pygame.display.flip()
-    fps_clock.tick(FPS)
-    ticks += 1
-
-    if reset_everything: # when you die
-        heatmap = {}
-        shadows = []
-        big_shadows = []
-        dead_shadows = []
-        shadow_spawn_time = START_SHADOW_SPAWN_TIME
-        explosions = []
-        player = Player()
-        pickup_bomb = Pickup_Bomb()
-        placed_bomb = Placed_Bomb()
-        reset_everything = False
-        if points > high_score:
-            high_score = points
-        points = 0
-        ticks = 1
+        # EVENTS
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    player.change_dir((-1,0))
+                if event.key == pygame.K_RIGHT:
+                    player.change_dir((1,0))
+                if event.key == pygame.K_UP:
+                    player.change_dir((0,-1))
+                if event.key == pygame.K_DOWN:
+                    player.change_dir((0,1))
+                if event.key == pygame.K_SPACE:
+                    placed_bomb.trigger()
+        # LOGIC
+        if player.alive:
+            shadow_logic()
         
+            for shadow in shadows: shadow.logic()
+            for big_shadow in big_shadows: big_shadow.logic()
+            pickup_bomb.logic()
+            player.logic()
+            for i in range(len(explosions)-1,-1,-1): explosions[i].logic()
+        for i in range(len(dead_shadows)-1,-1,-1): dead_shadows[i].logic()
 
+        # DRAW THINGS
+        screen.fill(BACKGROUND_COLOR)
+        draw_heatmap()
+        
+        for explosion in explosions: explosion.draw()
+        for shadow in shadows: shadow.draw()
+        for big_shadow in big_shadows: big_shadow.draw()
+        placed_bomb.draw()
+        pickup_bomb.draw()
+        player.draw()
+        draw_hud()
+        for dead_shadow in dead_shadows: dead_shadow.draw()
+
+        pygame.display.flip()
+        fps_clock.tick(FPS)
+        ticks += 1
+        await asyncio.sleep(0) # very important
+
+        if reset_everything: # when you die
+            heatmap = {}
+            shadows = []
+            big_shadows = []
+            dead_shadows = []
+            shadow_spawn_time = START_SHADOW_SPAWN_TIME
+            explosions = []
+            player = Player()
+            pickup_bomb = Pickup_Bomb()
+            placed_bomb = Placed_Bomb()
+            reset_everything = False
+            if points > high_score:
+                high_score = points
+            points = 0
+            ticks = 1
+            
+
+asyncio.run(main())
 pygame.quit()
